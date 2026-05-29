@@ -18,7 +18,9 @@ def _extract_entities(texts: list[str]) -> list[str]:
 
 def _normalize_source(action_id: str) -> str:
     mapping = {
-        "x": "X (Twitter)",
+        "rt_search": "Reddit",
+        "gn_search": "Google News",
+        "web_search": "Web",
         "reddit": "Reddit",
         "news": "News",
         "web": "Web",

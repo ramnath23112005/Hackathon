@@ -186,7 +186,7 @@ export default function ChatUI() {
           ))}
           {loading && (
             <div className="self-start rounded-xl bg-zinc-900 px-4 py-3 text-sm text-zinc-400">
-              Searching X, Reddit, News, Web...
+              Searching Reddit, News, Web...
             </div>
           )}
           <div ref={bottomRef} />
