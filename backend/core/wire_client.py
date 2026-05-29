@@ -8,65 +8,88 @@ from core.logger import setup_logger
 
 logger = setup_logger("wire_client")
 
-ACTION_KEYS = ["x", "reddit", "news", "web"]
-ACTION_CONFIG_MAP = {
-    "x": "wire_action_x",
+WIRE_ACTIONS = {
     "reddit": "wire_action_reddit",
     "news": "wire_action_news",
-    "web": "wire_action_web",
 }
 
 
 def _get_action_id(source: str) -> str | None:
-    field = ACTION_CONFIG_MAP.get(source)
+    field = WIRE_ACTIONS.get(source)
     if not field:
         return None
     return getattr(settings, field, None) or None
 
 
-def _run_wire_sync(action_id: str, query: str) -> dict[str, Any]:
+def _get_client() -> Anakin | None:
     if not settings.wire_api_key:
-        logger.warning("No Wire API key configured — skipping real API call")
-        return {"action": action_id, "query": query, "error": "no_api_key", "results": []}
+        logger.warning("No Wire API key configured")
+        return None
+    return Anakin(
+        api_key=settings.wire_api_key,
+        base_url=settings.wire_base_url,
+        timeout=settings.wire_timeout,
+    )
 
+
+def _run_wire_action(client: Anakin, action_id: str, query: str) -> dict[str, Any]:
     try:
-        client = Anakin(
-            api_key=settings.wire_api_key,
-            base_url=settings.wire_base_url,
-            timeout=settings.wire_timeout,
-        )
         result = client.wire(action_id, {"query": query})
-        logger.debug("Wire %s completed — status=%s", action_id, result.status)
-
+        logger.debug("Wire %s — status=%s", action_id, result.status)
         return {
             "action": action_id,
             "query": query,
             "status": result.status,
-            "data": result.data if result.data else {},
             "error": result.error.message if result.error else None,
             "results": result.data if result.data else [],
         }
-
     except Exception as e:
         logger.error("Wire %s failed: %s", action_id, str(e))
         return {"action": action_id, "query": query, "error": str(e), "results": []}
 
 
-async def search_all(query: str) -> list[dict[str, Any]]:
-    action_ids = [_get_action_id(s) for s in ACTION_KEYS]
-    configured = [aid for aid in action_ids if aid]
+def _run_web_search(client: Anakin, query: str) -> dict[str, Any]:
+    try:
+        result = client.search(query, limit=8)
+        items = [r.model_dump() for r in result.results]
+        logger.debug("Web search returned %d results", len(items))
+        return {
+            "action": "web_search",
+            "query": query,
+            "status": "completed",
+            "error": None,
+            "results": items,
+        }
+    except Exception as e:
+        logger.error("Web search failed: %s", str(e))
+        return {"action": "web_search", "query": query, "error": str(e), "results": []}
 
-    if not configured:
-        logger.warning("No Wire action IDs configured — returning empty")
+
+async def search_all(query: str) -> list[dict[str, Any]]:
+    client = _get_client()
+
+    if not client:
         return [
-            {"action": k, "query": query, "error": "no_action_id", "results": []}
-            for k in ACTION_KEYS
+            {"action": k, "query": query, "error": "no_api_key", "results": []}
+            for k in list(WIRE_ACTIONS.keys()) + ["web"]
         ]
 
-    results = await asyncio.gather(*[
-        asyncio.to_thread(_run_wire_sync, aid, query)
-        for aid in configured
-    ])
+    tasks: list[Any] = []
 
-    logger.info("Wire pipeline complete — %d actions executed", len(results))
+    for source, action_id in _configured_actions():
+        tasks.append(asyncio.to_thread(_run_wire_action, client, action_id, query))
+
+    tasks.append(asyncio.to_thread(_run_web_search, client, query))
+
+    results = await asyncio.gather(*tasks)
+    logger.info("Wire pipeline complete — %d sources", len(results))
     return results
+
+
+def _configured_actions() -> list[tuple[str, str]]:
+    result: list[tuple[str, str]] = []
+    for source, field in WIRE_ACTIONS.items():
+        aid = getattr(settings, field, None)
+        if aid:
+            result.append((source, aid))
+    return result
