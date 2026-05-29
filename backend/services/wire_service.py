@@ -1,11 +1,9 @@
 from typing import Any
 
 from core.logger import setup_logger
-from core.wire_client import WireClient
+from core.wire_client import search_all
 
 logger = setup_logger("wire_service")
-
-wire_client = WireClient()
 
 
 def _extract_entities(texts: list[str]) -> list[str]:
@@ -18,14 +16,14 @@ def _extract_entities(texts: list[str]) -> list[str]:
     return sorted(entities)
 
 
-def _normalize_source(action: str) -> str:
+def _normalize_source(action_id: str) -> str:
     mapping = {
-        "search_x": "X (Twitter)",
-        "search_reddit": "Reddit",
-        "search_news": "News",
-        "search_web": "Web",
+        "x": "X (Twitter)",
+        "reddit": "Reddit",
+        "news": "News",
+        "web": "Web",
     }
-    return mapping.get(action, action)
+    return mapping.get(action_id, action_id)
 
 
 def normalize_wire_response(raw: list[dict[str, Any]]) -> dict[str, Any]:
@@ -38,11 +36,18 @@ def normalize_wire_response(raw: list[dict[str, Any]]) -> dict[str, Any]:
         error = source_data.get("error")
 
         entry: dict[str, Any] = {"source": source_name, "error": error, "count": 0}
-        results = source_data.get("results", [])
+        results_raw = source_data.get("results", source_data.get("data", {}))
 
-        if results and not error:
-            entry["count"] = len(results)
-            for r in results:
+        if isinstance(results_raw, dict):
+            items = results_raw.get("results", results_raw.get("items", []))
+        elif isinstance(results_raw, list):
+            items = results_raw
+        else:
+            items = []
+
+        if items and not error:
+            entry["count"] = len(items)
+            for r in items:
                 text = r.get("text", r.get("content", r.get("title", "")))
                 if text:
                     all_texts.append(text)
@@ -73,7 +78,7 @@ def normalize_wire_response(raw: list[dict[str, Any]]) -> dict[str, Any]:
 
 async def query_internet(user_query: str) -> dict[str, Any]:
     logger.info("Querying internet: %s", user_query)
-    raw_responses = await wire_client.search_all(user_query)
+    raw_responses = await search_all(user_query)
     normalized = normalize_wire_response(raw_responses)
     logger.info(
         "Normalized: %d results across %d sources",

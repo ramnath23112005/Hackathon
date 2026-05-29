@@ -1,73 +1,72 @@
 import asyncio
 from typing import Any
 
-import httpx
+from anakin import Anakin
 
 from core.config import settings
 from core.logger import setup_logger
 
 logger = setup_logger("wire_client")
 
-WIRE_ACTIONS = {
-    "x": "search_x",
-    "reddit": "search_reddit",
-    "news": "search_news",
-    "web": "search_web",
+ACTION_KEYS = ["x", "reddit", "news", "web"]
+ACTION_CONFIG_MAP = {
+    "x": "wire_action_x",
+    "reddit": "wire_action_reddit",
+    "news": "wire_action_news",
+    "web": "wire_action_web",
 }
 
 
-class WireClientError(Exception):
-    pass
+def _get_action_id(source: str) -> str | None:
+    field = ACTION_CONFIG_MAP.get(source)
+    if not field:
+        return None
+    return getattr(settings, field, None) or None
 
 
-class WireClient:
-    def __init__(self) -> None:
-        self.base_url = settings.wire_base_url
-        self.api_key = settings.wire_api_key
-        self.timeout = settings.wire_timeout
+def _run_wire_sync(action_id: str, query: str) -> dict[str, Any]:
+    if not settings.wire_api_key:
+        logger.warning("No Wire API key configured — skipping real API call")
+        return {"action": action_id, "query": query, "error": "no_api_key", "results": []}
 
-    async def _call_action(self, action: str, query: str) -> dict[str, Any]:
-        if not self.api_key:
-            logger.warning("No Wire API key configured — skipping real API call")
-            return {"action": action, "query": query, "error": "no_api_key", "results": []}
+    try:
+        client = Anakin(
+            api_key=settings.wire_api_key,
+            base_url=settings.wire_base_url,
+            timeout=settings.wire_timeout,
+        )
+        result = client.wire(action_id, {"query": query})
+        logger.debug("Wire %s completed — status=%s", action_id, result.status)
 
-        url = f"{self.base_url}/v1/actions/call"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
+        return {
+            "action": action_id,
+            "query": query,
+            "status": result.status,
+            "data": result.data if result.data else {},
+            "error": result.error.message if result.error else None,
+            "results": result.data if result.data else [],
         }
-        payload = {
-            "action": action,
-            "input": {"query": query},
-        }
 
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                resp = await client.post(url, json=payload, headers=headers)
-                resp.raise_for_status()
-                data: dict[str, Any] = resp.json()
-                logger.debug("Wire %s returned %d items", action, len(data.get("results", [])))
-                return data
+    except Exception as e:
+        logger.error("Wire %s failed: %s", action_id, str(e))
+        return {"action": action_id, "query": query, "error": str(e), "results": []}
 
-        except httpx.TimeoutException:
-            logger.error("Wire %s timed out after %ss", action, self.timeout)
-            return {"action": action, "query": query, "error": "timeout", "results": []}
 
-        except httpx.HTTPStatusError as e:
-            logger.error("Wire %s HTTP %s: %s", action, e.response.status_code, e.response.text[:200])
-            return {"action": action, "query": query, "error": f"http_{e.response.status_code}", "results": []}
+async def search_all(query: str) -> list[dict[str, Any]]:
+    action_ids = [_get_action_id(s) for s in ACTION_KEYS]
+    configured = [aid for aid in action_ids if aid]
 
-        except Exception as e:
-            logger.error("Wire %s failed: %s", action, str(e))
-            return {"action": action, "query": query, "error": str(e), "results": []}
-
-    async def search_all(self, query: str) -> list[dict[str, Any]]:
-        tasks = [
-            self._call_action(WIRE_ACTIONS["x"], query),
-            self._call_action(WIRE_ACTIONS["reddit"], query),
-            self._call_action(WIRE_ACTIONS["news"], query),
-            self._call_action(WIRE_ACTIONS["web"], query),
+    if not configured:
+        logger.warning("No Wire action IDs configured — returning empty")
+        return [
+            {"action": k, "query": query, "error": "no_action_id", "results": []}
+            for k in ACTION_KEYS
         ]
-        results = await asyncio.gather(*tasks)
-        logger.info("Wire pipeline complete — %d sources queried", len(results))
-        return results
+
+    results = await asyncio.gather(*[
+        asyncio.to_thread(_run_wire_sync, aid, query)
+        for aid in configured
+    ])
+
+    logger.info("Wire pipeline complete — %d actions executed", len(results))
+    return results

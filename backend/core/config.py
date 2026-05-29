@@ -14,9 +14,14 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    wire_base_url: str = "https://api.anakin.ai"
     wire_api_key: str = ""
-    wire_timeout: int = 30
+    wire_base_url: str = "https://api.anakin.io/v1"
+    wire_timeout: int = 60
+
+    wire_action_x: str = ""
+    wire_action_reddit: str = ""
+    wire_action_news: str = ""
+    wire_action_web: str = ""
 
     @field_validator("cors_origins", mode="before")
     @classmethod
