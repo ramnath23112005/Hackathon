@@ -27,7 +27,8 @@ export default function ChatUI() {
     setLoading(true)
 
     try {
-      const res = await fetch("http://localhost:8000/chat", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMsg.content }),
@@ -38,7 +39,7 @@ export default function ChatUI() {
     } catch {
       const errorMsg: Message = {
         role: "assistant",
-        content: "Error connecting to backend. Make sure the server is running on port 8000.",
+        content: "Error connecting to backend. Make sure the server is running.",
       }
       setMessages((prev) => [...prev, errorMsg])
     } finally {
