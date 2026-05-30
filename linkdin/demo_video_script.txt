@@ -1,0 +1,92 @@
+# InternetOS — 2-Minute Demo Video Script
+
+---
+
+## TIMING: 2 minutes total
+
+---
+
+### 0:00 – 0:10 (Opening)
+
+**Screen:** Landing page loads — HeroScreen with feature grid and example prompts
+
+**You say:**
+> "This is InternetOS — an autonomous AI agent that researches the live internet and returns structured intelligence. Powered by Anakin Wire."
+
+---
+
+### 0:10 – 0:25 (The Query)
+
+**Screen:** Click example prompt `"Find trending AI startups hiring now"` → Chat panel shows query → Agent starts
+
+**You say:**
+> "One click. Watch what happens."
+
+---
+
+### 0:25 – 0:50 (Agent Execution)
+
+**Screen:** Center panel — all 8 steps animate one by one
+
+Point to each step as it progresses:
+- Interpreting Query → Planning Strategy → Connecting to Wire → Searching Internet → Processing Results → Analyzing Intelligence → Synthesizing Report → Complete
+
+**You say:**
+> "The AI agent starts working. It interprets the query, plans a search strategy, then connects to Anakin Wire to search Reddit, X/Twitter, News, and the Web — all in parallel. Every step is visible. You can see the agent thinking in real time. This isn't a black box."
+
+---
+
+### 0:50 – 1:10 (Intelligence Report)
+
+**Screen:** Right panel slides in — Report cards: Executive Summary, Key Trends, Insights, Opportunities, Risk Signals, Sources
+
+**You say:**
+> "Here's the output. A complete intelligence report — executive summary, key trends, insights, opportunities, risk signals. Everything attributed to live sources."
+
+---
+
+### 1:10 – 1:25 (Sources Card)
+
+**Screen:** Scroll down to Sources card — shows "Anakin Wire" badge with source list
+
+**You say:**
+> "Every insight is backed by real data from Anakin Wire — live Reddit, X, and News results. Not a static dataset. Every claim is linked to its source."
+
+---
+
+### 1:25 – 1:40 (Technical Credibility)
+
+**Screen:** Open new tab → navigate to `/health` endpoint → show `"wire": {"configured": true}`
+
+**You say:**
+> "The entire system is deployed on Vercel and Render. Production infrastructure running live. Anyone can open the link and use it right now."
+
+---
+
+### 1:40 – 2:00 (Closing)
+
+**Screen:** Back to the intelligence report — let it sit on screen
+
+**You say:**
+> "The internet is the largest dataset ever created. But right now, we're still reading it tab by tab. InternetOS doesn't just find information — it understands it, analyzes it, and tells you what matters. One query, one complete answer."
+
+> "Thank you."
+
+---
+
+## RECORDING TIPS
+
+| Do | Don't |
+|----|-------|
+| Record 1920×1080 full screen | Record portrait/vertical |
+| Speak clearly, pause between sentences | Rush or mumble |
+| Point with cursor as you narrate | Stand still saying nothing |
+| Let report cards sit for 2s at the end | Close the tab immediately |
+| Use DEMO_MODE=true for guaranteed speed | Let it hang on loading |
+| Smile and sound confident | Sound nervous or apologetic |
+
+## TOOLS
+
+- **OBS Studio** (free) — screen recording
+- **Your phone** — if no OBS
+- **DaVinci Resolve** (free) — trim/merge if needed

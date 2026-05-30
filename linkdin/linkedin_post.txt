@@ -1,0 +1,18 @@
+🚀 We built an autonomous AI agent that researches the live internet for you.
+
+Introducing InternetOS — an AI-native research operating system powered by Anakin Wire.
+
+Type one question. It:
+1️⃣ Interprets your intent using AI
+2️⃣ Searches Reddit, X/Twitter, News & Web in parallel
+3️⃣ Analyzes every result with a reasoning LLM
+4️⃣ Returns a structured intelligence report with trends, risks, insights & attributed sources
+
+All in ~15 seconds. All visible step-by-step.
+
+Built with: Next.js · FastAPI · Groq LLM · Anakin Wire
+
+🔗 Live: https://hackathon-navy-eta.vercel.app
+💻 Code: https://github.com/ramnath23112005/Hackathon
+
+#AnakinWire #AI #Hackathon #InternetOS #Groq

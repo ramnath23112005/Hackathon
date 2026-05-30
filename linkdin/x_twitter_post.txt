@@ -1,0 +1,9 @@
+I built an autonomous AI agent that researches the internet for you in 15 seconds.
+
+Powered by Anakin Wire + Groq LLM.
+
+Type a question. It searches Reddit, X, News & Web. Returns a full intelligence report.
+
+🔗 https://hackathon-navy-eta.vercel.app
+
+#AnakinWire #AI #Hackathon

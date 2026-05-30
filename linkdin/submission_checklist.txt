@@ -1,0 +1,34 @@
+# InternetOS — Submission Checklist
+
+## ✅ Before Recording
+
+- [ ] App deployed and working on Vercel
+- [ ] Backend deployed on Render
+- [ ] DEMO_MODE=false (or true for guaranteed speed)
+- [ ] WIRE_ACTION_X=tw_search set on Render
+- [ ] Wire API key active (407 credits)
+- [ ] `/health` endpoint returns `"wire": {"configured": true}`
+
+## ✅ Demo Video
+
+- [ ] Record 2 min max, 1920×1080
+- [ ] Start on landing page
+- [ ] Click an example prompt (not type)
+- [ ] Show agent steps animating
+- [ ] Show intelligence report scrolling
+- [ ] Show Sources card with "Anakin Wire"
+- [ ] End on report with closing line
+
+## ✅ Social Media
+
+- [ ] **X (Twitter):** Post with demo video, tag @anakinHQ
+- [ ] **LinkedIn:** Post with demo video, tag Anakin Tech
+- [ ] Use hashtags: #AnakinWire #AI #Hackathon
+
+## ✅ Submission (Sunday 1:00 PM – 11:59 PM)
+
+- [ ] GitHub repo URL
+- [ ] Live demo URL (Vercel)
+- [ ] Demo video link (YouTube / Google Drive / Loom)
+- [ ] Social media post link
+- [ ] Submit form
