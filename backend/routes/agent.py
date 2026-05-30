@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from models.agent_state import AGENT_STEPS, AgentState
+from models.agent_state import AGENT_STEPS
 from services.agent_service import get_state, start_agent
 
 router = APIRouter(prefix="/agent", tags=["agent"])
@@ -21,3 +21,17 @@ async def agent_status(session_id: str):
     if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     return state.model_dump()
+
+
+@router.get("/result/{session_id}")
+async def agent_result(session_id: str):
+    state = get_state(session_id)
+    if not state:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if state.status not in ("completed", "failed"):
+        raise HTTPException(status_code=425, detail="Agent still running")
+    return {
+        "status": state.status,
+        "result": state.result,
+        "error": state.error,
+    }
