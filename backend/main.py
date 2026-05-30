@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from core.config import settings
 from core.cors import setup_cors
+from routes.agent import router as agent_router
 from routes.chat import router as chat_router
 
 app = FastAPI(
@@ -12,6 +13,7 @@ app = FastAPI(
 
 setup_cors(app)
 app.include_router(chat_router)
+app.include_router(agent_router)
 
 
 @app.get("/health")
