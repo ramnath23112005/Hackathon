@@ -15,6 +15,21 @@ type BadgeProps = {
 }
 
 function Badge({ label, ok, pulse }: BadgeProps) {
+  const base = "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1"
+
+  if (pulse && ok) {
+    return (
+      <motion.span
+        className={`${base} bg-emerald-500/10 text-emerald-400 ring-emerald-500/20`}
+        animate={{ opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        {label}
+      </motion.span>
+    )
+  }
+
   const color =
     ok === true
       ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20"
@@ -22,10 +37,8 @@ function Badge({ label, ok, pulse }: BadgeProps) {
         ? "bg-red-500/10 text-red-400 ring-red-500/20"
         : "bg-zinc-500/10 text-zinc-400 ring-zinc-500/20"
 
-  const inner = (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ${color}`}
-    >
+  return (
+    <span className={`${base} ${color}`}>
       <span
         className={`h-1.5 w-1.5 rounded-full ${
           ok === true
@@ -38,19 +51,6 @@ function Badge({ label, ok, pulse }: BadgeProps) {
       {label}
     </span>
   )
-
-  if (pulse && ok) {
-    return (
-      <motion.span
-        className="contents"
-        animate={{ opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        {inner}
-      </motion.span>
-    )
-  }
-  return inner
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
