@@ -87,6 +87,7 @@ async def _call_llm(prompt: str) -> str | None:
 
     client = AsyncOpenAI(
         api_key=settings.openai_api_key,
+        base_url=settings.openai_base_url,
         timeout=settings.openai_timeout,
         max_retries=settings.openai_max_retries,
     )

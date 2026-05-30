@@ -24,10 +24,11 @@ class Settings(BaseSettings):
     wire_action_web: str = ""
 
     llm_enabled: bool = True
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    openai_api_key: str = "ollama"
+    openai_base_url: str = "http://localhost:11434/v1"
+    openai_model: str = "qwen3.5:latest"
     openai_temperature: float = 0.3
-    openai_timeout: int = 30
+    openai_timeout: int = 60
     openai_max_retries: int = 2
 
     @field_validator("cors_origins", mode="before")
