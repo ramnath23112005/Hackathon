@@ -102,7 +102,7 @@ export default function Home() {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <HeroScreen onSelectPrompt={handleSelectPrompt} />
+              <HeroScreen onSelectPrompt={handleSelectPrompt} onSend={handleSend} />
             </motion.div>
           ) : (
             <motion.div
