@@ -45,6 +45,7 @@ async def health():
         "wire": {
             "configured": bool(settings.wire_api_key),
             "actions": {
+                "x": bool(settings.wire_action_x),
                 "reddit": bool(settings.wire_action_reddit),
                 "news": bool(settings.wire_action_news),
             },

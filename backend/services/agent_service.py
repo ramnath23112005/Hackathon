@@ -21,12 +21,10 @@ INTERPRET_SYSTEM_PROMPT = (
     '{\n'
     '  "intent": "one-line description of what the user wants",\n'
     '  "search_terms": ["optimal", "search", "terms"],\n'
-    '  "priority_sources": ["Reddit" | "News" | "Web" | "All"],\n'
-    '  "reasoning": "why this search strategy was chosen"\n'
-    '}\n\n'
-    "Rules:\n"
-    "- If the query asks for opinions/discussions → prioritize Reddit\n"
-    "- If the query asks for news/updates/trends → prioritize News\n"
+    '  "priority_sources": ["Reddit" | "X (Twitter)" | "News" | "Web" | "All"],\n'
+     "Rules:\n"
+     "- If the query asks for opinions/discussions → prioritize Reddit or X (Twitter)\n"
+     "- If the query asks for news/updates/trends → prioritize News\n"
     "- For general research → use All sources\n"
     "- Generate 2-3 search_terms that would yield the best results\n"
     "- Be concise. Every word must carry signal."
@@ -129,13 +127,14 @@ def _plan_search_focus_fallback(query: str) -> str:
 def _sources_action_text(sources: str) -> str:
     mapping = {
         "Reddit": "Reddit discussions",
+        "X (Twitter)": "X/Twitter posts",
         "News": "news articles",
         "Web": "general web sources",
-        "All": "Reddit, News, and Web",
+        "All": "Reddit, X/Twitter, News, and Web",
     }
     if not isinstance(sources, str):
-        return "Reddit, News, and Web"
-    return mapping.get(sources, "Reddit, News, and Web")
+        return "Reddit, X/Twitter, News, and Web"
+    return mapping.get(sources, "Reddit, X/Twitter, News, and Web")
 
 
 async def run_agent(session_id: str, query: str) -> None:

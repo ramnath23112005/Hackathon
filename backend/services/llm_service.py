@@ -30,14 +30,48 @@ SYSTEM_PROMPT = (
     '}'
 )
 
-FALLBACK_REPORT = IntelligenceReport(
-    summary="Analysis unavailable due to LLM service error.",
-    key_trends=["insufficient data"],
-    insights=["insufficient data"],
-    opportunities=["insufficient data"],
-    risk_signals=["insufficient data"],
-    source_attribution=["insufficient data"],
-)
+def _build_fallback_report(wire_data: dict[str, Any]) -> IntelligenceReport:
+    context = (wire_data.get("summary_context") or "")[:500]
+    entities = wire_data.get("key_entities", [])
+    trends = wire_data.get("trends", [])
+    sources_list = wire_data.get("sources", [])
+    results = wire_data.get("results", [])
+
+    active_sources = sorted({
+        s.get("source", "Anakin Wire")
+        for s in sources_list
+        if not s.get("error") and s.get("count", 0) > 0
+    }) or ["Anakin Wire"]
+
+    if context:
+        summary = f"Based on {len(active_sources)} sources: {context[:300]}"
+    else:
+        summary = f"Gathered {len(results)} results from {len(active_sources)} sources. Analysis pending."
+
+    key_trends_list = list(trends[:5]) if trends else []
+    if entities:
+        key_trends_list.extend([e for e in entities if e.startswith("#")][:3])
+    if not key_trends_list:
+        key_trends_list = ["Data collected from multiple sources awaiting LLM analysis"]
+
+    insights_list = []
+    if results:
+        for r in results[:3]:
+            t = (r.get("title") or r.get("text") or "")[:100]
+            if t:
+                insights_list.append(f"From {r.get('source', 'source')}: {t}")
+
+    if not insights_list:
+        insights_list = [f"Collected {len(results)} data points across {len(active_sources)} sources"]
+
+    return IntelligenceReport(
+        summary=summary,
+        key_trends=key_trends_list,
+        insights=insights_list,
+        opportunities=[f"Monitor {len(active_sources)} intelligence channels for deeper analysis"],
+        risk_signals=["LLM analysis unavailable — data quality not verified"],
+        source_attribution=active_sources,
+    )
 
 
 def _compress_results(results: list[dict[str, Any]], max_items: int = 12) -> list[dict[str, str]]:
@@ -136,7 +170,7 @@ def _parse_response(raw: str) -> IntelligenceReport | None:
 async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> IntelligenceReport:
     if not settings.llm_enabled:
         logger.info("LLM disabled via config, returning fallback")
-        return FALLBACK_REPORT
+        return _build_fallback_report(wire_data)
 
     prompt = _build_prompt(query, wire_data)
     logger.info("LLM prompt built — %d chars", len(prompt))
@@ -149,7 +183,7 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
             logger.info("DEMO_MODE fallback: LLM failed, using cached response")
             demo_data = get_demo_llm_response(query)
             return IntelligenceReport(**demo_data)
-        return FALLBACK_REPORT
+        return _build_fallback_report(wire_data)
 
     if not raw:
         if is_demo_mode():
@@ -157,7 +191,7 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
             demo_data = get_demo_llm_response(query)
             return IntelligenceReport(**demo_data)
         logger.warning("LLM returned no content, using fallback")
-        return FALLBACK_REPORT
+        return _build_fallback_report(wire_data)
 
     report = _parse_response(raw)
     if not report:
@@ -166,6 +200,6 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
             demo_data = get_demo_llm_response(query)
             return IntelligenceReport(**demo_data)
         logger.warning("LLM response unparseable, using fallback")
-        return FALLBACK_REPORT
+        return _build_fallback_report(wire_data)
 
     return report

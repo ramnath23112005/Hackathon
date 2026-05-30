@@ -9,6 +9,7 @@ from core.logger import setup_logger
 logger = setup_logger("wire_client")
 
 WIRE_ACTIONS = {
+    "x": "wire_action_x",
     "reddit": "wire_action_reddit",
     "news": "wire_action_news",
 }
