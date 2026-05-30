@@ -80,24 +80,33 @@ def normalize_wire_response(raw: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 async def query_internet(user_query: str) -> dict[str, Any]:
-    if is_demo_mode():
-        return get_demo_wire_response(user_query)
-
     logger.info("Querying internet: %s", user_query)
     try:
         raw_responses = await search_all(user_query)
+        normalized = normalize_wire_response(raw_responses)
+
+        has_results = any(s.get("count", 0) > 0 for s in normalized.get("sources", []))
+        if not has_results and is_demo_mode():
+            logger.info("DEMO_MODE fallback: Wire returned no results, using cached data")
+            return get_demo_wire_response(user_query)
+
+        logger.info(
+            "Normalized: %d results across %d sources",
+            len(normalized.get("results", [])),
+            len(normalized.get("sources", [])),
+        )
+        return {"normalized": normalized, "raw": raw_responses}
+
     except Exception as e:
         logger.error("Wire search_all failed: %s", str(e))
+        if is_demo_mode():
+            logger.info("DEMO_MODE fallback: Wire failed, using cached data")
+            return get_demo_wire_response(user_query)
+
         raw_responses = [
             {"action": "reddit", "query": user_query, "error": str(e), "results": []},
             {"action": "news", "query": user_query, "error": str(e), "results": []},
             {"action": "web", "query": user_query, "error": str(e), "results": []},
         ]
-
-    normalized = normalize_wire_response(raw_responses)
-    logger.info(
-        "Normalized: %d results across %d sources",
-        len(normalized.get("results", [])),
-        len(normalized.get("sources", [])),
-    )
-    return {"normalized": normalized, "raw": raw_responses}
+        normalized = normalize_wire_response(raw_responses)
+        return {"normalized": normalized, "raw": raw_responses}

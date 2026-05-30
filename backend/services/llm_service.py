@@ -138,10 +138,6 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
         logger.info("LLM disabled via config, returning fallback")
         return FALLBACK_REPORT
 
-    if is_demo_mode():
-        demo_data = get_demo_llm_response(query)
-        return IntelligenceReport(**demo_data)
-
     prompt = _build_prompt(query, wire_data)
     logger.info("LLM prompt built — %d chars", len(prompt))
 
@@ -149,14 +145,26 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
         raw = await _call_llm(prompt)
     except Exception as e:
         logger.error("LLM call raised exception: %s", str(e))
+        if is_demo_mode():
+            logger.info("DEMO_MODE fallback: LLM failed, using cached response")
+            demo_data = get_demo_llm_response(query)
+            return IntelligenceReport(**demo_data)
         return FALLBACK_REPORT
 
     if not raw:
+        if is_demo_mode():
+            logger.info("DEMO_MODE fallback: LLM empty, using cached response")
+            demo_data = get_demo_llm_response(query)
+            return IntelligenceReport(**demo_data)
         logger.warning("LLM returned no content, using fallback")
         return FALLBACK_REPORT
 
     report = _parse_response(raw)
     if not report:
+        if is_demo_mode():
+            logger.info("DEMO_MODE fallback: LLM unparseable, using cached response")
+            demo_data = get_demo_llm_response(query)
+            return IntelligenceReport(**demo_data)
         logger.warning("LLM response unparseable, using fallback")
         return FALLBACK_REPORT
 
