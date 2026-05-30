@@ -38,11 +38,48 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/health")
 async def health():
+    import httpx
+
+    llm_status = "disconnected"
+    try:
+        r = httpx.get(
+            f"{settings.openai_base_url.rstrip('/v1')}/api/tags",
+            timeout=3,
+        )
+        if r.status_code == 200:
+            llm_status = "connected"
+    except Exception:
+        llm_status = "disconnected"
+
+    wire_status = "disconnected"
+    if settings.wire_api_key:
+        try:
+            r = httpx.get(
+                f"{settings.wire_base_url}/actions",
+                headers={"Authorization": f"Bearer {settings.wire_api_key}"},
+                timeout=5,
+            )
+            if r.status_code < 500:
+                wire_status = "connected"
+            else:
+                wire_status = "error"
+        except Exception:
+            wire_status = "disconnected"
+
     return {
         "status": "ok",
         "version": settings.app_version,
         "demo_mode": is_demo_mode(),
+        "llm": {
+            "status": llm_status,
+            "configured": bool(settings.openai_api_key),
+            "enabled": settings.llm_enabled,
+            "provider": "ollama" if "11434" in settings.openai_base_url or "ollama" in settings.openai_base_url.lower() else "openai",
+            "model": settings.openai_model,
+            "base_url": settings.openai_base_url,
+        },
         "wire": {
+            "status": wire_status,
             "configured": bool(settings.wire_api_key),
             "actions": {
                 "x": bool(settings.wire_action_x),
