@@ -41,15 +41,29 @@ async def health():
     import httpx
 
     llm_status = "disconnected"
-    try:
-        r = httpx.get(
-            f"{settings.openai_base_url.rstrip('/v1')}/api/tags",
-            timeout=3,
-        )
-        if r.status_code == 200:
-            llm_status = "connected"
-    except Exception:
-        llm_status = "disconnected"
+    if settings.openai_api_key:
+        try:
+            headers = {"Authorization": f"Bearer {settings.openai_api_key}"}
+            r = httpx.get(
+                f"{settings.openai_base_url}/models",
+                headers=headers,
+                timeout=5,
+            )
+            if r.status_code == 200:
+                llm_status = "connected"
+        except Exception:
+            pass
+
+    if llm_status == "disconnected":
+        try:
+            r = httpx.get(
+                f"{settings.openai_base_url.rstrip('/v1')}/api/tags",
+                timeout=3,
+            )
+            if r.status_code == 200:
+                llm_status = "connected"
+        except Exception:
+            pass
 
     wire_status = "disconnected"
     if settings.wire_api_key:
