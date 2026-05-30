@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Globe } from "lucide-react"
+import { Globe, Database } from "lucide-react"
 import Card from "@/components/ui/Card"
 
 type Props = {
@@ -16,6 +16,10 @@ export default function SourcesCard({ sources }: Props) {
     >
       <Card icon={<Globe size={14} />} title={`Sources (${sources.length})`} accent="rose">
         <div className="flex flex-wrap gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2.5 py-1 text-xs text-blue-300 ring-1 ring-blue-500/20">
+            <Database size={10} />
+            Anakin Wire
+          </span>
           {sources.map((s, i) => (
             <span
               key={i}

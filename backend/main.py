@@ -42,4 +42,11 @@ async def health():
         "status": "ok",
         "version": settings.app_version,
         "demo_mode": is_demo_mode(),
+        "wire": {
+            "configured": bool(settings.wire_api_key),
+            "actions": {
+                "reddit": bool(settings.wire_action_reddit),
+                "news": bool(settings.wire_action_news),
+            },
+        },
     }

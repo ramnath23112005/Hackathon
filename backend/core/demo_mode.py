@@ -34,7 +34,7 @@ CACHED_RESPONSES: list[dict] = [
             "insights": ["Sequoia, A16Z, and YC are the most active AI startup investors this year", "AI agent companies are the hottest category in the current funding cycle", "Enterprise AI transitioning from experimental to production-grade"],
             "opportunities": ["AI-powered developer tools as an underserved market", "Healthcare AI applications showing strong growth", "Autonomous agents for enterprise workflows gaining traction"],
             "risk_signals": ["Valuation inflation in later-stage AI rounds", "Regulatory uncertainty around AI agent autonomy", "Talent competition driving up engineering costs"],
-            "source_attribution": ["Sequoia Capital", "Andreessen Horowitz", "Y Combinator", "TechCrunch", "Reddit r/startups"],
+            "source_attribution": ["Sequoia Capital", "Andreessen Horowitz", "Y Combinator", "TechCrunch", "Reddit r/startups", "Anakin Wire"],
         },
     },
     {
@@ -65,7 +65,7 @@ CACHED_RESPONSES: list[dict] = [
             "insights": ["62% of professionals now use AI tools weekly, up from 38%", "Debate centers on innovation speed vs safety", "Regulatory frameworks struggling to keep pace"],
             "opportunities": ["AI education and upskilling platforms", "Transparent AI governance consulting", "Privacy-preserving AI tools"],
             "risk_signals": ["Potential regulatory backlash slowing innovation", "Public trust erosion from misuse incidents", "Talent gap in AI ethics and safety"],
-            "source_attribution": ["Reddit r/technology", "Reddit r/Futurology", "Pew Research", "TechCrunch", "The Verge"],
+            "source_attribution": ["Reddit r/technology", "Reddit r/Futurology", "Pew Research", "TechCrunch", "The Verge", "Anakin Wire"],
         },
     },
     {
@@ -95,7 +95,7 @@ CACHED_RESPONSES: list[dict] = [
             "insights": ["Deepfake social engineering is the fastest-growing attack vector", "Healthcare and critical infrastructure are primary targets", "AI defense systems spending up 200%"],
             "opportunities": ["AI-powered cybersecurity solutions market expanding", "Security automation for small and medium businesses", "Incident response consulting services"],
             "risk_signals": ["Attack sophistication outpacing defense capabilities", "Cybersecurity talent shortage worsening", "Critical infrastructure vulnerabilities remain high"],
-            "source_attribution": ["Krebs on Security", "BleepingComputer", "Reddit r/cybersecurity", "CISA", "Dark Reading"],
+            "source_attribution": ["Krebs on Security", "BleepingComputer", "Reddit r/cybersecurity", "CISA", "Dark Reading", "Anakin Wire"],
         },
     },
     {
@@ -125,7 +125,7 @@ CACHED_RESPONSES: list[dict] = [
             "insights": ["AI engineers average $250K+ compensation", "Entry-level tech market remains competitive", "Companies with flexibility have 2x retention"],
             "opportunities": ["AI upskilling and bootcamp programs", "Remote-first HR and compliance tools", "Salary data and transparency platforms"],
             "risk_signals": ["Entry-level saturation in some tech fields", "Return-to-office mandates causing attrition", "Automation displacing some junior roles"],
-            "source_attribution": ["LinkedIn Workforce Report", "Glassdoor", "Reddit r/cscareerquestions", "Bloomberg", "Indeed Hiring Lab"],
+            "source_attribution": ["LinkedIn Workforce Report", "Glassdoor", "Reddit r/cscareerquestions", "Bloomberg", "Indeed Hiring Lab", "Anakin Wire"],
         },
     },
 ]

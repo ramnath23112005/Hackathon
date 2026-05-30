@@ -14,7 +14,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <motion.span
           className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-medium text-emerald-400 ring-1 ring-emerald-500/20"
           animate={{ opacity: [0.7, 1, 0.7] }}
@@ -22,6 +22,9 @@ export default function Header() {
         >
           LIVE INTERNET INTELLIGENCE
         </motion.span>
+        <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-medium text-blue-400 ring-1 ring-blue-500/20">
+          Anakin Wire
+        </span>
       </div>
     </header>
   )
