@@ -82,8 +82,23 @@ async def search_all(query: str) -> list[dict[str, Any]]:
 
     tasks.append(asyncio.to_thread(_run_web_search, client, query))
 
-    results = await asyncio.gather(*tasks)
-    logger.info("Wire pipeline complete — %d sources", len(results))
+    done, pending = await asyncio.wait(tasks, timeout=30)
+
+    for p in pending:
+        p.cancel()
+
+    results = []
+    for t in done:
+        try:
+            result = t.result()
+            if isinstance(result, Exception):
+                results.append({"action": "unknown", "query": query, "error": str(result), "results": []})
+            else:
+                results.append(result)
+        except Exception as e:
+            results.append({"action": "unknown", "query": query, "error": str(e), "results": []})
+
+    logger.info("Wire pipeline complete — %d sources (%d timed out)", len(results), len(pending))
     return results
 
 
