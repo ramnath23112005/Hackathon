@@ -90,11 +90,20 @@ async def _interpret_with_llm(query: str) -> dict:
                 text = text[4:].strip()
 
         data = json.loads(text)
+
+        raw_sources = data.get("priority_sources", "All")
+        if isinstance(raw_sources, list):
+            raw_sources = raw_sources[0] if raw_sources else "All"
+
+        raw_terms = data.get("search_terms", [query])
+        if isinstance(raw_terms, str):
+            raw_terms = [raw_terms]
+
         return {
             "plan": "llm",
             "intent": data.get("intent", ""),
-            "search_terms": data.get("search_terms", [query]),
-            "priority_sources": data.get("priority_sources", "All"),
+            "search_terms": raw_terms,
+            "priority_sources": str(raw_sources),
             "reasoning": data.get("reasoning", ""),
         }
     except Exception as e:
@@ -124,6 +133,8 @@ def _sources_action_text(sources: str) -> str:
         "Web": "general web sources",
         "All": "Reddit, News, and Web",
     }
+    if not isinstance(sources, str):
+        return "Reddit, News, and Web"
     return mapping.get(sources, "Reddit, News, and Web")
 
 
