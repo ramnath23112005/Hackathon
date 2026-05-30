@@ -34,11 +34,18 @@ export default function AgentTimeline({ sessionId, steps, onComplete, onError }:
   const [activeStepIdx, setActiveStepIdx] = useState(-1)
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const doneRef = useRef(false)
+  const onCompleteRef = useRef(onComplete)
+  const onErrorRef = useRef(onError)
+  onCompleteRef.current = onComplete
+  onErrorRef.current = onError
 
   useEffect(() => {
+    doneRef.current = false
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
     async function poll() {
+      if (doneRef.current) return
       try {
         const res = await fetch(`${API_URL}/agent/status/${sessionId}`)
         if (!res.ok) return
@@ -48,16 +55,21 @@ export default function AgentTimeline({ sessionId, steps, onComplete, onError }:
         const idx = steps.findIndex((s) => s.step === data.step)
         if (idx >= 0) setActiveStepIdx(idx)
 
-        if (data.status === "completed") {
+        if (data.status === "completed" && !doneRef.current) {
+          doneRef.current = true
           if (pollingRef.current) clearInterval(pollingRef.current)
-          onComplete(data)
-        } else if (data.status === "failed") {
+          onCompleteRef.current(data)
+        } else if (data.status === "failed" && !doneRef.current) {
+          doneRef.current = true
           if (pollingRef.current) clearInterval(pollingRef.current)
-          onError(data.error || "Agent execution failed")
+          onErrorRef.current(data.error || "Agent execution failed")
         }
       } catch {
-        if (pollingRef.current) clearInterval(pollingRef.current)
-        onError("Failed to connect to backend")
+        if (!doneRef.current) {
+          doneRef.current = true
+          if (pollingRef.current) clearInterval(pollingRef.current)
+          onErrorRef.current("Failed to connect to backend")
+        }
       }
     }
 
@@ -65,7 +77,7 @@ export default function AgentTimeline({ sessionId, steps, onComplete, onError }:
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current)
     }
-  }, [sessionId, steps, onComplete, onError])
+  }, [sessionId, steps])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
