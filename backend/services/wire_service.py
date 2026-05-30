@@ -1,5 +1,6 @@
 from typing import Any
 
+from core.demo_mode import get_demo_wire_response, is_demo_mode
 from core.logger import setup_logger
 from core.wire_client import search_all
 
@@ -79,8 +80,20 @@ def normalize_wire_response(raw: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 async def query_internet(user_query: str) -> dict[str, Any]:
+    if is_demo_mode():
+        return get_demo_wire_response(user_query)
+
     logger.info("Querying internet: %s", user_query)
-    raw_responses = await search_all(user_query)
+    try:
+        raw_responses = await search_all(user_query)
+    except Exception as e:
+        logger.error("Wire search_all failed: %s", str(e))
+        raw_responses = [
+            {"action": "reddit", "query": user_query, "error": str(e), "results": []},
+            {"action": "news", "query": user_query, "error": str(e), "results": []},
+            {"action": "web", "query": user_query, "error": str(e), "results": []},
+        ]
+
     normalized = normalize_wire_response(raw_responses)
     logger.info(
         "Normalized: %d results across %d sources",

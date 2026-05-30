@@ -4,6 +4,7 @@ from typing import Any
 from openai import AsyncOpenAI
 
 from core.config import settings
+from core.demo_mode import get_demo_llm_response, is_demo_mode
 from core.logger import setup_logger
 from models.schemas import IntelligenceReport
 
@@ -137,10 +138,19 @@ async def generate_intelligence(query: str, wire_data: dict[str, Any]) -> Intell
         logger.info("LLM disabled via config, returning fallback")
         return FALLBACK_REPORT
 
+    if is_demo_mode():
+        demo_data = get_demo_llm_response(query)
+        return IntelligenceReport(**demo_data)
+
     prompt = _build_prompt(query, wire_data)
     logger.info("LLM prompt built — %d chars", len(prompt))
 
-    raw = await _call_llm(prompt)
+    try:
+        raw = await _call_llm(prompt)
+    except Exception as e:
+        logger.error("LLM call raised exception: %s", str(e))
+        return FALLBACK_REPORT
+
     if not raw:
         logger.warning("LLM returned no content, using fallback")
         return FALLBACK_REPORT

@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "InternetOS API"
-    app_version: str = "0.3.0"
+    app_version: str = "1.0.0"
     debug: bool = True
 
     cors_origins: list[str] = [
@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     openai_temperature: float = 0.3
     openai_timeout: int = 60
     openai_max_retries: int = 2
+
+    demo_mode: bool = False
 
     @field_validator("cors_origins", mode="before")
     @classmethod
