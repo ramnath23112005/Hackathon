@@ -25,10 +25,20 @@ type NormalizedData = {
   results: ResultItem[]
 }
 
+type IntelligenceReport = {
+  summary: string
+  key_trends: string[]
+  insights: string[]
+  opportunities: string[]
+  risk_signals: string[]
+  source_attribution: string[]
+}
+
 type ChatResponse = {
   query: string
   sources: Source[]
   data: NormalizedData
+  intelligence: IntelligenceReport | null
   raw_wire_response: unknown[] | null
 }
 
@@ -67,7 +77,9 @@ export default function ChatUI() {
       const data: ChatResponse = await res.json()
       const assistantMsg: Message = {
         role: "assistant",
-        content: `InternetOS processed: "${data.query}"`,
+        content: data.intelligence
+          ? `Intelligence Report for "${data.query}"`
+          : `InternetOS processed: "${data.query}"`,
         response: data,
       }
       setMessages((prev) => [...prev, assistantMsg])
@@ -99,10 +111,96 @@ export default function ChatUI() {
                 </div>
               ) : (
                 <div className="rounded-xl bg-zinc-900 px-4 py-3 text-sm leading-relaxed text-zinc-300 self-start max-w-full">
-                  {msg.content}
-                  {msg.response && (
-                    <div className="mt-3 space-y-3 border-t border-zinc-700 pt-3">
-                      {/* Sources */}
+                  {msg.response?.intelligence ? (
+                    <div className="space-y-4">
+                      {/* Summary */}
+                      <div>
+                        <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                          Intelligence Summary
+                        </p>
+                        <p className="text-sm text-zinc-200 leading-relaxed">
+                          {msg.response.intelligence.summary}
+                        </p>
+                      </div>
+
+                      {/* Key Trends */}
+                      {msg.response.intelligence.key_trends.length > 0 && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                            Key Trends
+                          </p>
+                          <ul className="list-disc list-inside space-y-0.5">
+                            {msg.response.intelligence.key_trends.map((t, j) => (
+                              <li key={j} className="text-xs text-zinc-300">{t}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Insights */}
+                      {msg.response.intelligence.insights.length > 0 && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                            Insights
+                          </p>
+                          <ul className="list-disc list-inside space-y-0.5">
+                            {msg.response.intelligence.insights.map((i, j) => (
+                              <li key={j} className="text-xs text-zinc-300">{i}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Opportunities */}
+                      {msg.response.intelligence.opportunities.length > 0 && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                            Opportunities
+                          </p>
+                          <ul className="list-disc list-inside space-y-0.5">
+                            {msg.response.intelligence.opportunities.map((o, j) => (
+                              <li key={j} className="text-xs text-zinc-300">{o}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Risk Signals */}
+                      {msg.response.intelligence.risk_signals.length > 0 && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                            Risk Signals
+                          </p>
+                          <ul className="list-disc list-inside space-y-0.5">
+                            {msg.response.intelligence.risk_signals.map((r, j) => (
+                              <li key={j} className="text-xs text-amber-300">{r}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Source Attribution */}
+                      {msg.response.intelligence.source_attribution.length > 0 && (
+                        <div>
+                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                            Sources
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {msg.response.intelligence.source_attribution.map((s, j) => (
+                              <span key={j} className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : msg.response ? (
+                    <div className="space-y-3">
+                      <p className="text-xs text-zinc-500 italic">
+                        Intelligence unavailable — showing raw data
+                      </p>
+                      {/* Raw Sources */}
                       <div>
                         <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
                           Sources
@@ -122,39 +220,6 @@ export default function ChatUI() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Summary */}
-                      {msg.response.data.summary_context && (
-                        <div>
-                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-                            Summary
-                          </p>
-                          <p className="text-xs text-zinc-400 leading-relaxed">
-                            {msg.response.data.summary_context}
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Entities */}
-                      {msg.response.data.key_entities.length > 0 && (
-                        <div>
-                          <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
-                            Entities
-                          </p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {msg.response.data.key_entities.map((e, j) => (
-                              <span
-                                key={j}
-                                className="rounded bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
-                              >
-                                {e}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Results */}
                       {msg.response.data.results.length > 0 && (
                         <div>
                           <p className="mb-1 text-xs font-semibold text-zinc-400 uppercase tracking-wide">
@@ -166,9 +231,7 @@ export default function ChatUI() {
                                 <p className="text-zinc-200 font-medium truncate">
                                   {r.title || "(no title)"}
                                 </p>
-                                <p className="text-zinc-400 mt-0.5 line-clamp-2">
-                                  {r.text}
-                                </p>
+                                <p className="text-zinc-400 mt-0.5 line-clamp-2">{r.text}</p>
                                 <div className="flex gap-2 mt-1 text-zinc-500">
                                   <span>{r.source}</span>
                                   {r.author && <span>by {r.author}</span>}
@@ -179,6 +242,8 @@ export default function ChatUI() {
                         </div>
                       )}
                     </div>
+                  ) : (
+                    <p>{msg.content}</p>
                   )}
                 </div>
               )}
@@ -186,7 +251,7 @@ export default function ChatUI() {
           ))}
           {loading && (
             <div className="self-start rounded-xl bg-zinc-900 px-4 py-3 text-sm text-zinc-400">
-              Searching Reddit, News, Web...
+              Searching internet & analyzing intelligence...
             </div>
           )}
           <div ref={bottomRef} />

@@ -21,8 +21,18 @@ class NormalizedData(BaseModel):
     results: list[dict[str, Any]]
 
 
+class IntelligenceReport(BaseModel):
+    summary: str
+    key_trends: list[str]
+    insights: list[str]
+    opportunities: list[str]
+    risk_signals: list[str]
+    source_attribution: list[str]
+
+
 class ChatResponse(BaseModel):
     query: str
     sources: list[SourceSummary]
     data: NormalizedData
+    intelligence: IntelligenceReport | None = None
     raw_wire_response: list[dict[str, Any]] | None = None

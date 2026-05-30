@@ -1,20 +1,6 @@
 from models.schemas import ChatResponse, NormalizedData, SourceSummary
+from services.llm_service import generate_intelligence
 from services.wire_service import query_internet
-
-
-def _build_debug_response(raw: list) -> ChatResponse:
-    return ChatResponse(
-        query="debug_pipeline",
-        sources=[],
-        data=NormalizedData(
-            summary_context="Debug mode — raw Wire responses returned.",
-            key_entities=[],
-            trends=[],
-            sources=[],
-            results=[],
-        ),
-        raw_wire_response=raw,
-    )
 
 
 async def generate_reply(message: str, debug: bool = False) -> ChatResponse:
@@ -35,10 +21,13 @@ async def generate_reply(message: str, debug: bool = False) -> ChatResponse:
         results=normalized["results"],
     )
 
+    intelligence = await generate_intelligence(message, normalized)
+
     response = ChatResponse(
         query=message,
         sources=sources,
         data=data,
+        intelligence=intelligence,
         raw_wire_response=raw if debug else None,
     )
 
