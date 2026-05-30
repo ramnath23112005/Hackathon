@@ -69,7 +69,8 @@ def _build_prompt(query: str, wire_data: dict[str, Any]) -> str:
     if sources_summary:
         active = [s for s in sources_summary if not s.get("error") and s.get("count", 0) > 0]
         if active:
-            parts.append(f"\nSources: {', '.join(f'{s[\"source\"]}({s[\"count\"]})' for s in active)}")
+            labels = [f"{s['source']}({s['count']})" for s in active]
+            parts.append(f"\nSources: {', '.join(labels)}")
     if results:
         rows = []
         for r in results:
