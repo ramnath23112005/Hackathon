@@ -64,17 +64,17 @@ export default function Header() {
 
     async function check() {
       try {
-        const res = await fetch(`${API_URL}/health`)
+        const res = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(15000) })
         if (cancelled) return
         if (res.ok) {
           const data: HealthStatus = await res.json()
           setHealth(data)
           setBackendOk(true)
         } else {
-          setBackendOk(false)
+          setBackendOk(null)
         }
       } catch {
-        if (!cancelled) setBackendOk(false)
+        if (!cancelled) setBackendOk(null)
       }
     }
 

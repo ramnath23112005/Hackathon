@@ -28,6 +28,15 @@ export default function Home() {
   const [agentSteps, setAgentSteps] = useState<AgentStepDef[]>([])
   const [activeReport, setActiveReport] = useState<ChatResponse | null>(null)
 
+  const fetchWithRetry = useCallback(async (url: string, options: RequestInit, maxRetries = 5) => {
+    for (let i = 0; i < maxRetries; i++) {
+      const res = await fetch(url, { ...options, signal: AbortSignal.timeout(30000) })
+      if (res.ok) return res
+      if (i < maxRetries - 1) await new Promise((r) => setTimeout(r, 3000 * (i + 1)))
+    }
+    throw new Error("Backend unavailable after retries")
+  }, [])
+
   const handleSend = useCallback(async (query: string) => {
     const userMsg: Message = { role: "user", content: query }
     setMessages((prev) => [...prev, userMsg])
@@ -38,7 +47,7 @@ export default function Home() {
 
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
-      const res = await fetch(`${API_URL}/agent/run`, {
+      const res = await fetchWithRetry(`${API_URL}/agent/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: query }),
@@ -50,10 +59,10 @@ export default function Home() {
       setLoading(false)
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Error connecting to backend." },
+        { role: "assistant", content: "Backend is waking up... please wait a moment and try again." },
       ])
     }
-  }, [])
+  }, [fetchWithRetry])
 
   const handleSelectPrompt = useCallback((prompt: string) => {
     handleSend(prompt)
