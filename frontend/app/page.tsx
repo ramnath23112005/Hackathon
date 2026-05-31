@@ -99,7 +99,7 @@ export default function Home() {
     <main className="flex h-dvh flex-col bg-[#0B0F19] text-zinc-100">
       <Header />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-y-auto md:overflow-hidden md:flex-row">
         {/* LEFT: Chat Panel — always visible */}
         <AnimatePresence mode="wait">
           {messages.length === 0 && !agentSessionId ? (
@@ -116,8 +116,8 @@ export default function Home() {
           ) : (
             <motion.div
               key="chat"
-              className={`flex flex-col border-r border-zinc-800/60 ${
-                showTimeline || showReport ? "w-[28%]" : "flex-1"
+              className={`flex flex-col border-r-0 md:border-r border-b md:border-b-0 border-zinc-800/60 ${
+                showTimeline || showReport ? "w-full md:w-[28%] md:flex-none" : "flex-1"
               }`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -137,10 +137,10 @@ export default function Home() {
         {(showTimeline || (loading && agentSessionId)) && (
           <motion.div
             key="timeline"
-            className="w-[28%] border-r border-zinc-800/60 px-4 py-4"
-            initial={{ width: 0, opacity: 0, overflow: "hidden" }}
-            animate={{ width: "28%", opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
+            className="w-full md:w-[28%] border-r-0 md:border-r border-b md:border-b-0 border-zinc-800/60 px-4 py-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <AgentTimeline
@@ -156,7 +156,7 @@ export default function Home() {
         {showReport && activeReport?.intelligence && (
           <motion.div
             key="report"
-            className="flex-1 overflow-y-auto px-4 py-4"
+            className="w-full md:flex-1 md:overflow-y-auto px-4 py-4"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}

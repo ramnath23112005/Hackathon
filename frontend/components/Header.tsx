@@ -87,35 +87,37 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 px-6 py-3 backdrop-blur-md">
+    <header className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-950/80 px-3 py-2.5 backdrop-blur-md md:px-6 md:py-3">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600">
           <Cpu size={16} className="text-white" />
         </div>
         <div>
           <h1 className="text-sm font-semibold text-zinc-100">InternetOS</h1>
-          <p className="text-[10px] text-zinc-500">AI-Native Research Operating System</p>
+          <p className="hidden sm:block text-[10px] text-zinc-500">AI-Native Research Operating System</p>
         </div>
       </div>
 
       <div className="flex items-center gap-1.5">
         <Badge label="LIVE" ok={backendOk} pulse />
-        <Badge label="Backend" ok={backendOk} />
-        <Badge
-          label="Wire"
-          ok={health ? health.wire.status === "connected" : null}
-        />
-        <Badge
-          label="LLM"
-          ok={health ? health.llm.status === "connected" : null}
-        />
-        {health?.llm.provider === "ollama" && (
-          <Badge label={health.llm.model} ok={health.llm.status === "connected"} />
-        )}
-        <Badge
-          label="Anakin Wire"
-          ok={health ? health.wire.configured : null}
-        />
+        <div className="hidden md:flex items-center gap-1.5">
+          <Badge label="Backend" ok={backendOk} />
+          <Badge
+            label="Wire"
+            ok={health ? health.wire.status === "connected" : null}
+          />
+          <Badge
+            label="LLM"
+            ok={health ? health.llm.status === "connected" : null}
+          />
+          {health?.llm.provider === "ollama" && (
+            <Badge label={health.llm.model} ok={health.llm.status === "connected"} />
+          )}
+          <Badge
+            label="Anakin Wire"
+            ok={health ? health.wire.configured : null}
+          />
+        </div>
       </div>
     </header>
   )
